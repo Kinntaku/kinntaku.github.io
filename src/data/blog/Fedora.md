@@ -1,5 +1,7 @@
 ---
 author: Kinntaku
+pubDatetime: 2022-09-23T04:58:53Z
+modDatetime: 2025-03-20T03:15:57.792Z
 title: Fedora折腾记录
 slug: fedora-kde-install
 featured: true
@@ -7,6 +9,7 @@ draft: false
 tags:
   - Fedora
 description: How to install Fedora and make it suitable for you in your daily life.
+
 ---
 
 # Fedora折腾记录
