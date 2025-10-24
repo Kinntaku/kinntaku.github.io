@@ -60,4 +60,6 @@ export default defineConfig({
   experimental: {
     preserveScriptOrder: true,
   },
+  output: 'static',
+  base: '/kinntaku.github.io/', // 例如 '/kinntaku.github.io/'
 });
