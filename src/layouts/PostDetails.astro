@@ -152,7 +152,7 @@ const nextPost =
       // Function to update Giscus theme based on current theme
       function updateGiscusTheme() {
         const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-        const iframe = document.querySelector('iframe.giscus-frame');
+        const iframe = document.querySelector('iframe.giscus-frame') as HTMLIFrameElement;
         if (iframe) {
           iframe.contentWindow.postMessage(
             { giscus: { setConfig: { theme } } },
