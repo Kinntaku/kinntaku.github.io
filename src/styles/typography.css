@@ -62,7 +62,7 @@
       }
 
       a {
-        @apply break-words;
+        @apply break-all;
       }
 
       code {
