@@ -141,13 +141,40 @@ const nextPost =
         data-reactions-enabled="1"
         data-emit-metadata="0"
         data-input-position="top"
-        data-theme="preferred_color_scheme"
+        data-theme="light"
         data-lang="zh-CN"
-        data-loading="lazy"
         crossorigin="anonymous"
         async>
 </script>
     </div>
+
+    <script>
+      // Function to update Giscus theme based on current theme
+      function updateGiscusTheme() {
+        const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (iframe) {
+          iframe.contentWindow.postMessage(
+            { giscus: { setConfig: { theme } } },
+            'https://giscus.app'
+          );
+        }
+      }
+
+      // Update theme on page load and theme change
+      document.addEventListener('DOMContentLoaded', () => {
+        updateGiscusTheme();
+      });
+
+      // Listen for theme changes (assuming theme toggle updates data-theme)
+      const observer = new MutationObserver(() => {
+        updateGiscusTheme();
+      });
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+      });
+    </script>
 
     <hr class="my-6 border-dashed" />
 
