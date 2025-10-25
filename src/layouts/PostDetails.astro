@@ -141,40 +141,12 @@ const nextPost =
         data-reactions-enabled="1"
         data-emit-metadata="0"
         data-input-position="top"
-        data-theme="light"
+        data-theme="preferred_color_scheme"
         data-lang="zh-CN"
         crossorigin="anonymous"
         async>
 </script>
     </div>
-
-    <script>
-      // Function to update Giscus theme based on current theme
-      function updateGiscusTheme() {
-        const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
-        const iframe = document.querySelector('iframe.giscus-frame') as HTMLIFrameElement;
-        if (iframe) {
-          iframe.contentWindow.postMessage(
-            { giscus: { setConfig: { theme } } },
-            'https://giscus.app'
-          );
-        }
-      }
-
-      // Update theme on page load and theme change
-      document.addEventListener('DOMContentLoaded', () => {
-        updateGiscusTheme();
-      });
-
-      // Listen for theme changes (assuming theme toggle updates data-theme)
-      const observer = new MutationObserver(() => {
-        updateGiscusTheme();
-      });
-      observer.observe(document.documentElement, {
-        attributes: true,
-        attributeFilter: ['data-theme']
-      });
-    </script>
 
     <hr class="my-6 border-dashed" />
 
@@ -333,3 +305,29 @@ const nextPost =
     window.scrollTo({ left: 0, top: 0, behavior: "instant" })
   );
 </script>
+
+<script>
+      // Function to update Giscus theme based on website theme
+      function updateGiscusTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+        const iframe = document.querySelector('iframe.giscus-frame') as HTMLIFrameElement;
+        if (iframe && iframe.contentWindow) {
+          iframe.contentWindow.postMessage(
+            { giscus: { setConfig: { theme: currentTheme } } },
+            'https://giscus.app'
+          );
+        }
+      }
+
+      // Listen for theme changes
+      const observer = new MutationObserver(updateGiscusTheme);
+      observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+      });
+
+      // Update theme after Giscus loads
+      window.addEventListener('load', () => {
+        setTimeout(updateGiscusTheme, 2000); // Wait for Giscus to load
+      });
+    </script>
