@@ -154,6 +154,89 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
 </style>
 
 <script>
+  // Scroll monitoring variables
+  let scrollMonitoringActive = false;
+  let scrollTimeout: number | null = null;
+  
+  // Function to start monitoring scroll
+  function startScrollMonitoring() {
+    if (scrollMonitoringActive) return;
+    scrollMonitoringActive = true;
+    
+    window.addEventListener("scroll", handleScrollForToc, { passive: true });
+  }
+  
+  // Function to stop monitoring scroll
+  function stopScrollMonitoring() {
+    scrollMonitoringActive = false;
+    window.removeEventListener("scroll", handleScrollForToc);
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = null;
+    }
+  }
+  
+  // Throttled scroll handler
+  function handleScrollForToc() {
+    if (!scrollMonitoringActive) return;
+    
+    if (scrollTimeout) {
+      clearTimeout(scrollTimeout);
+    }
+    
+    scrollTimeout = window.setTimeout(() => {
+      highlightCurrentSection();
+    }, 50) as unknown as number;
+  }
+  
+  // Function to highlight current section based on viewport center
+  function highlightCurrentSection() {
+    const tocLinks = document.querySelectorAll("#toc-list a");
+    const headings = document.querySelectorAll("main h2[id], main h3[id]");
+    
+    if (headings.length === 0 || tocLinks.length === 0) return;
+    
+    // Get viewport center position
+    const viewportCenter = window.scrollY + window.innerHeight / 2;
+    
+    // Find the first heading above viewport center
+    let currentHeading: Element | null = null;
+    
+    for (let i = headings.length - 1; i >= 0; i--) {
+      const heading = headings[i] as HTMLElement;
+      const headingTop = heading.offsetTop;
+      
+      if (headingTop <= viewportCenter) {
+        currentHeading = heading;
+        break;
+      }
+    }
+    
+    // Remove all active classes
+    tocLinks.forEach(link => link.classList.remove("active"));
+    
+    // Add active class to current heading's link
+    if (currentHeading) {
+      const id = currentHeading.id;
+      const activeLink = document.querySelector(`#toc-list a[href="#${id}"]`);
+      if (activeLink) {
+        activeLink.classList.add("active");
+        
+        // Only auto-scroll TOC if the active link is not visible
+        const tocPanel = document.getElementById("toc-panel");
+        if (tocPanel) {
+          const linkRect = (activeLink as HTMLElement).getBoundingClientRect();
+          const panelRect = tocPanel.getBoundingClientRect();
+          
+          // Check if link is outside visible area
+          if (linkRect.top < panelRect.top || linkRect.bottom > panelRect.bottom) {
+            activeLink.scrollIntoView({ block: "center", behavior: "smooth" });
+          }
+        }
+      }
+    }
+  }
+
   function initToc() {
     const toggleBtn = document.getElementById("toc-toggle-btn");
     const tocPanel = document.getElementById("toc-panel");
@@ -210,59 +293,27 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
         if (isDesktop) {
           // On desktop, toggle between visible and hidden
           tocPanel.classList.toggle("is-closed");
-          // Highlight current section when opening
+          // Start/stop monitoring when opening/closing
           if (!tocPanel.classList.contains("is-closed")) {
             highlightCurrentSection();
+            startScrollMonitoring();
+          } else {
+            stopScrollMonitoring();
           }
         } else {
           // On mobile, toggle is-open class
           tocPanel.classList.toggle("is-open");
-          // Highlight current section when opening
+          // Start/stop monitoring when opening/closing
           if (tocPanel.classList.contains("is-open")) {
             highlightCurrentSection();
+            startScrollMonitoring();
+          } else {
+            stopScrollMonitoring();
           }
         }
       });
     }
     
-    // Function to highlight current section based on viewport center
-    function highlightCurrentSection() {
-      const tocLinks = document.querySelectorAll("#toc-list a");
-      const headings = document.querySelectorAll("main h2[id], main h3[id]");
-      
-      if (headings.length === 0 || tocLinks.length === 0) return;
-      
-      // Get viewport center position
-      const viewportCenter = window.scrollY + window.innerHeight / 2;
-      
-      // Find the first heading above viewport center
-      let currentHeading: Element | null = null;
-      
-      for (let i = headings.length - 1; i >= 0; i--) {
-        const heading = headings[i] as HTMLElement;
-        const headingTop = heading.offsetTop;
-        
-        if (headingTop <= viewportCenter) {
-          currentHeading = heading;
-          break;
-        }
-      }
-      
-      // Remove all active classes
-      tocLinks.forEach(link => link.classList.remove("active"));
-      
-      // Add active class to current heading's link
-      if (currentHeading) {
-        const id = currentHeading.id;
-        const activeLink = document.querySelector(`#toc-list a[href="#${id}"]`);
-        if (activeLink) {
-          activeLink.classList.add("active");
-          // Scroll the active link into view
-          activeLink.scrollIntoView({ block: "center", behavior: "smooth" });
-        }
-      }
-    }
-
     // Close panel when clicking outside (only on mobile)
     const closeOutsideHandler = (e: Event) => {
       const tocPanel = document.getElementById("toc-panel");
@@ -275,11 +326,10 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
           e.target !== toggleBtn
         ) {
           tocPanel.classList.remove("is-open");
+          stopScrollMonitoring();
         }
       }
-    };
-    
-    document.removeEventListener("click", closeOutsideHandler);
+    };    document.removeEventListener("click", closeOutsideHandler);
     document.addEventListener("click", closeOutsideHandler);
   }
 
@@ -289,13 +339,12 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
   // Re-initialize after view transitions (if enabled)
   document.addEventListener("astro:page-load", () => {
     initToc();
-    // Also highlight on page load if TOC is open on desktop
+    // Also start monitoring if TOC is open on desktop
     const tocPanel = document.getElementById("toc-panel");
     if (tocPanel && window.innerWidth >= 1440 && !tocPanel.classList.contains("is-closed")) {
-      // Wait a bit for the page to settle
       setTimeout(() => {
-        const highlightFunc = (window as any).highlightCurrentSection;
-        if (highlightFunc) highlightFunc();
+        highlightCurrentSection();
+        startScrollMonitoring();
       }, 100);
     }
   });
