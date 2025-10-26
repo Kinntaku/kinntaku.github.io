@@ -196,17 +196,17 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     
     if (headings.length === 0 || tocLinks.length === 0) return;
     
-    // Get viewport center position
-    const viewportCenter = window.scrollY + window.innerHeight / 2;
+    // Get viewport top position (with a small offset for header)
+    const viewportTop = window.scrollY + 100;
     
-    // Find the first heading above viewport center
+    // Find the first heading above viewport top
     let currentHeading: Element | null = null;
     
     for (let i = headings.length - 1; i >= 0; i--) {
       const heading = headings[i] as HTMLElement;
       const headingTop = heading.offsetTop;
       
-      if (headingTop <= viewportCenter) {
+      if (headingTop <= viewportTop) {
         currentHeading = heading;
         break;
       }
