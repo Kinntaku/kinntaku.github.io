@@ -4,6 +4,7 @@
   /* ===== Override default Tailwind Typography styles ===== */
   .app-prose {
     @apply prose;
+    word-break: break-all;
 
     h1,
     h2,
@@ -76,6 +77,7 @@
 
     .astro-code code {
       @apply flex-[1_0_100%] bg-inherit p-0;
+      word-break: normal;
     }
 
     blockquote {

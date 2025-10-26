@@ -10,7 +10,7 @@ const { headings } = Astro.props;
 const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
 ---
 
-<div id="toc-container" class="hidden">
+<div id="toc-container">
   <button id="toc-toggle-btn">
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -59,9 +59,9 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     width: 3rem;
     height: 3rem;
     border-radius: 9999px;
-    background-color: var(--card-bg);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
+    background-color: var(--accent);
+    color: var(--fg-color);
+    border: none;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     transition: all 0.2s ease-in-out;
   }
@@ -73,13 +73,13 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
   #toc-panel {
     display: none;
     position: absolute;
-    bottom: 0;
+    bottom: 3.5rem; /* Position above the button */
     left: 0;
     width: 280px; /* xl width */
     max-height: 70vh;
     overflow-y: auto;
-    background-color: var(--card-bg);
-    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    border: 1px solid var(--accent);
     border-radius: 0.5rem;
     padding: 1rem;
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
@@ -131,8 +131,10 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
       width: 100%;
       max-height: calc(100vh - 10rem);
       box-shadow: none;
-      border: none;
-      background: transparent;
+      border: 1px solid var(--accent);
+      border-radius: 0.5rem;
+      background: var(--bg-color);
+      padding: 1rem;
     }
   }
 </style>
@@ -142,11 +144,9 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     const tocContainer = document.getElementById("toc-container");
     const headings = document.querySelectorAll("main h2, main h3");
     if (!tocContainer || headings.length === 0) {
+      if(tocContainer) tocContainer.style.display = 'none';
       return;
     }
-
-    // Show the container only if there are headings
-    tocContainer.classList.remove("hidden");
 
     const toggleBtn = document.getElementById("toc-toggle-btn");
     const tocPanel = document.getElementById("toc-panel");
