@@ -31,16 +31,18 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     <span class="sr-only">Toggle Table of Contents</span>
   </button>
   <div id="toc-panel">
-    <h2 class="text-lg font-semibold">目录</h2>
-    <ul id="toc-list">
-      {
-        tocHeadings.map(heading => (
-          <li class={`toc-item toc-depth-${heading.depth}`}>
-            <a href={`#${heading.slug}`}>{heading.text}</a>
-          </li>
-        ))
-      }
-    </ul>
+    <div>
+      <h2 class="text-lg font-semibold">目录</h2>
+      <ul id="toc-list">
+        {
+          tocHeadings.map(heading => (
+            <li class={`toc-item toc-depth-${heading.depth}`}>
+              <a href={`#${heading.slug}`}>{heading.text}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
   </div>
 </div>
 
@@ -77,17 +79,29 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
   #toc-panel {
     display: none;
     position: fixed;
-    bottom: 6rem; /* Position above the button */
+    top: 2rem;
+    bottom: 7rem; /* Leave space for the button */
     left: 2rem;
     width: 280px;
-    max-height: 70vh;
     overflow-y: auto;
+    overflow-x: hidden;
     background-color: var(--background);
-    border: 1px solid var(--accent);
-    border-radius: 0.5rem;
-    padding: 1rem;
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
-      0 4px 6px -4px rgb(0 0 0 / 0.1);
+    border: none;
+    border-right: 2px solid var(--accent);
+    padding: 2rem 1rem;
+    box-shadow: none;
+  }
+  
+  #toc-panel > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100%;
+  }
+
+  #toc-panel h2 {
+    text-align: left;
+    flex-shrink: 0;
   }
 
   #toc-panel.is-open {
@@ -98,6 +112,8 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     list-style: none;
     padding: 0;
     margin-top: 0.5rem;
+    text-align: left;
+    flex-shrink: 0;
   }
 
   .toc-item a {
@@ -109,18 +125,19 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
   }
 
   .toc-item a:hover {
-    color: var(--primary);
+    color: var(--accent);
   }
 
   .toc-depth-3 {
     padding-left: 1rem;
+    font-size: 0.9em;
+    opacity: 0.8;
   }
 
   /* Desktop styles: auto show TOC when screen is wide enough */
   @media (min-width: 1440px) {
     #toc-panel {
       display: block;
-      bottom: 6rem;
     }
     
     #toc-panel.is-closed {
@@ -130,12 +147,29 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
 </style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  function initToc() {
     const toggleBtn = document.getElementById("toc-toggle-btn");
     const tocPanel = document.getElementById("toc-panel");
 
     if (toggleBtn && tocPanel) {
-      toggleBtn.addEventListener("click", e => {
+      // Prevent scrolling the main page when scrolling inside TOC panel
+      tocPanel.addEventListener("wheel", (e) => {
+        const isScrollable = tocPanel.scrollHeight > tocPanel.clientHeight;
+        if (isScrollable) {
+          e.stopPropagation();
+        }
+      }, { passive: false });
+      
+      // Prevent touch scrolling from affecting the main page
+      tocPanel.addEventListener("touchmove", (e) => {
+        e.stopPropagation();
+      }, { passive: true });
+
+      // Remove existing listeners to avoid duplicates
+      const newToggleBtn = toggleBtn.cloneNode(true) as HTMLElement;
+      toggleBtn.parentNode?.replaceChild(newToggleBtn, toggleBtn);
+      
+      newToggleBtn.addEventListener("click", e => {
         e.stopPropagation();
         
         // Check if we're on desktop
@@ -152,7 +186,10 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     }
 
     // Close panel when clicking outside (only on mobile)
-    document.addEventListener("click", e => {
+    const closeOutsideHandler = (e: Event) => {
+      const tocPanel = document.getElementById("toc-panel");
+      const toggleBtn = document.getElementById("toc-toggle-btn");
+      
       if (window.innerWidth < 1440 && tocPanel) {
         if (
           tocPanel.classList.contains("is-open") &&
@@ -162,6 +199,15 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
           tocPanel.classList.remove("is-open");
         }
       }
-    });
-  });
+    };
+    
+    document.removeEventListener("click", closeOutsideHandler);
+    document.addEventListener("click", closeOutsideHandler);
+  }
+
+  // Initialize on page load
+  document.addEventListener("DOMContentLoaded", initToc);
+  
+  // Re-initialize after view transitions (if enabled)
+  document.addEventListener("astro:page-load", initToc);
 </script>
