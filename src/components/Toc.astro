@@ -1,0 +1,172 @@
+---
+import type { MarkdownHeading } from "astro";
+
+export interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+
+const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
+---
+
+<div id="toc-container" class="hidden">
+  <button id="toc-toggle-btn">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="icon icon-tabler icons-tabler-outline icon-tabler-list-details"
+      ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
+        d="M13 5h8"></path><path d="M13 9h5"></path><path d="M13 15h8"
+      ></path><path d="M13 19h5"></path><path
+        d="M3 5h4v4h-4z"></path><path d="M3 15h4v4h-4z"></path></svg
+    >
+    <span class="sr-only">Toggle Table of Contents</span>
+  </button>
+  <div id="toc-panel">
+    <h2 class="text-lg font-semibold">目录</h2>
+    <ul id="toc-list">
+      {
+        tocHeadings.map(heading => (
+          <li class={`toc-item toc-depth-${heading.depth}`}>
+            <a href={`#${heading.slug}`}>{heading.text}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>
+
+<style>
+  #toc-container {
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 50;
+  }
+
+  #toc-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 9999px;
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    transition: all 0.2s ease-in-out;
+  }
+
+  #toc-toggle-btn:hover {
+    transform: scale(1.1);
+  }
+
+  #toc-panel {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 280px; /* xl width */
+    max-height: 70vh;
+    overflow-y: auto;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+      0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+
+  #toc-panel.is-open {
+    display: block;
+  }
+
+  #toc-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 0.5rem;
+  }
+
+  .toc-item a {
+    display: block;
+    padding: 0.25rem 0;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .toc-item a:hover {
+    color: var(--primary);
+  }
+
+  .toc-depth-3 {
+    padding-left: 1rem;
+  }
+
+  /* Desktop styles: always show TOC */
+  @media (min-width: 1440px) {
+    #toc-container {
+      display: block !important;
+      position: fixed;
+      left: 2rem;
+      top: 8rem; /* Adjust as needed */
+      bottom: auto;
+      width: 280px;
+    }
+    #toc-toggle-btn {
+      display: none;
+    }
+    #toc-panel {
+      display: block;
+      position: static;
+      width: 100%;
+      max-height: calc(100vh - 10rem);
+      box-shadow: none;
+      border: none;
+      background: transparent;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tocContainer = document.getElementById("toc-container");
+    const headings = document.querySelectorAll("main h2, main h3");
+    if (!tocContainer || headings.length === 0) {
+      return;
+    }
+
+    // Show the container only if there are headings
+    tocContainer.classList.remove("hidden");
+
+    const toggleBtn = document.getElementById("toc-toggle-btn");
+    const tocPanel = document.getElementById("toc-panel");
+
+    if (toggleBtn && tocPanel) {
+      toggleBtn.addEventListener("click", e => {
+        e.stopPropagation();
+        tocPanel.classList.toggle("is-open");
+      });
+    }
+
+    document.addEventListener("click", e => {
+      if (
+        tocPanel &&
+        tocPanel.classList.contains("is-open") &&
+        !tocPanel.contains(e.target as Node) &&
+        e.target !== toggleBtn
+      ) {
+        tocPanel.classList.remove("is-open");
+      }
+    });
+  });
+</script>
