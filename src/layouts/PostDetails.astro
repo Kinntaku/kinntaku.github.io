@@ -36,7 +36,7 @@ const {
   hideEditPost,
 } = post.data;
 
-const { Content, headings } = await post.render();
+const { Content, headings } = await render(post);
 
 let ogImageUrl: string | undefined;
 
