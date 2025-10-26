@@ -77,7 +77,7 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     width: 280px; /* xl width */
     max-height: 70vh;
     overflow-y: auto;
-    background-color: var(--bg-color);
+    background-color: var(--card-bg);
     border: 1px solid var(--accent);
     border-radius: 0.5rem;
     padding: 1rem;
@@ -132,7 +132,7 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
       box-shadow: none;
       border: 1px solid var(--accent);
       border-radius: 0.5rem;
-      background-color: var(--bg-color);
+      background-color: var(--card-bg);
       padding: 1rem;
     }
   }
@@ -140,37 +140,30 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
-    const tocContainer = document.getElementById("toc-container");
     const headings = document.querySelectorAll("main h2, main h3");
-    if (!tocContainer) return;
 
-    if (headings.length === 0) {
-      const isDesktop = window.matchMedia("(min-width: 1440px)").matches;
-      if(isDesktop) {
-        tocContainer.style.display = 'none';
+    // Only add functionality if there are headings to display
+    if (headings.length > 0) {
+      const toggleBtn = document.getElementById("toc-toggle-btn");
+      const tocPanel = document.getElementById("toc-panel");
+
+      if (toggleBtn && tocPanel) {
+        toggleBtn.addEventListener("click", e => {
+          e.stopPropagation();
+          tocPanel.classList.toggle("is-open");
+        });
+
+        document.addEventListener("click", e => {
+          if (
+            tocPanel.classList.contains("is-open") &&
+            !tocPanel.contains(e.target as Node) &&
+            e.target !== toggleBtn
+          ) {
+            tocPanel.classList.remove("is-open");
+          }
+        });
       }
-      return;
     }
-
-    const toggleBtn = document.getElementById("toc-toggle-btn");
-    const tocPanel = document.getElementById("toc-panel");
-
-    if (toggleBtn && tocPanel) {
-      toggleBtn.addEventListener("click", e => {
-        e.stopPropagation();
-        tocPanel.classList.toggle("is-open");
-      });
-    }
-
-    document.addEventListener("click", e => {
-      if (
-        tocPanel &&
-        tocPanel.classList.contains("is-open") &&
-        !tocPanel.contains(e.target as Node) &&
-        e.target !== toggleBtn
-      ) {
-        tocPanel.classList.remove("is-open");
-      }
-    });
+    // If no headings, do nothing. The component will remain visible but non-functional.
   });
 </script>
