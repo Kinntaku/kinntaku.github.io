@@ -63,8 +63,11 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     color: white;
     border: none;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    transition: all 0.2s ease-in-out;
+    transition: transform 0.2s ease-in-out;
     cursor: pointer;
+    position: fixed;
+    bottom: 2rem;
+    left: 2rem;
   }
 
   #toc-toggle-btn:hover {
@@ -73,10 +76,10 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
 
   #toc-panel {
     display: none;
-    position: absolute;
-    bottom: 3.5rem; /* Position above the button */
-    left: 0;
-    width: 280px; /* xl width */
+    position: fixed;
+    bottom: 6rem; /* Position above the button */
+    left: 2rem;
+    width: 280px;
     max-height: 70vh;
     overflow-y: auto;
     background-color: var(--background);
@@ -113,26 +116,15 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     padding-left: 1rem;
   }
 
-  /* Desktop styles: always show TOC */
+  /* Desktop styles: auto show TOC when screen is wide enough */
   @media (min-width: 1440px) {
-    #toc-container {
-      display: block !important;
-      position: fixed;
-      left: 2rem;
-      top: 8rem; /* Adjust as needed */
-      bottom: auto;
-      width: 280px;
-    }
     #toc-panel {
-      display: block !important;
-      position: static;
-      width: 100%;
-      max-height: calc(100vh - 10rem);
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      border: 1px solid var(--accent);
-      border-radius: 0.5rem;
-      background: var(--background);
-      padding: 1rem;
+      display: block;
+      bottom: 6rem;
+    }
+    
+    #toc-panel.is-closed {
+      display: none;
     }
   }
 </style>
@@ -145,18 +137,30 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     if (toggleBtn && tocPanel) {
       toggleBtn.addEventListener("click", e => {
         e.stopPropagation();
-        tocPanel.classList.toggle("is-open");
+        
+        // Check if we're on desktop
+        const isDesktop = window.innerWidth >= 1440;
+        
+        if (isDesktop) {
+          // On desktop, toggle between visible and hidden
+          tocPanel.classList.toggle("is-closed");
+        } else {
+          // On mobile, toggle is-open class
+          tocPanel.classList.toggle("is-open");
+        }
       });
     }
 
+    // Close panel when clicking outside (only on mobile)
     document.addEventListener("click", e => {
-      if (
-        tocPanel &&
-        tocPanel.classList.contains("is-open") &&
-        !tocPanel.contains(e.target as Node) &&
-        e.target !== toggleBtn
-      ) {
-        tocPanel.classList.remove("is-open");
+      if (window.innerWidth < 1440 && tocPanel) {
+        if (
+          tocPanel.classList.contains("is-open") &&
+          !tocPanel.contains(e.target as Node) &&
+          e.target !== toggleBtn
+        ) {
+          tocPanel.classList.remove("is-open");
+        }
       }
     });
   });
