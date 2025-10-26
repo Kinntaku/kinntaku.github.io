@@ -130,6 +130,11 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     color: var(--accent);
   }
 
+  .toc-item a.active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
   .toc-depth-3 {
     padding-left: 1rem;
     font-size: 0.9em;
@@ -205,11 +210,57 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
         if (isDesktop) {
           // On desktop, toggle between visible and hidden
           tocPanel.classList.toggle("is-closed");
+          // Highlight current section when opening
+          if (!tocPanel.classList.contains("is-closed")) {
+            highlightCurrentSection();
+          }
         } else {
           // On mobile, toggle is-open class
           tocPanel.classList.toggle("is-open");
+          // Highlight current section when opening
+          if (tocPanel.classList.contains("is-open")) {
+            highlightCurrentSection();
+          }
         }
       });
+    }
+    
+    // Function to highlight current section based on viewport center
+    function highlightCurrentSection() {
+      const tocLinks = document.querySelectorAll("#toc-list a");
+      const headings = document.querySelectorAll("main h2[id], main h3[id]");
+      
+      if (headings.length === 0 || tocLinks.length === 0) return;
+      
+      // Get viewport center position
+      const viewportCenter = window.scrollY + window.innerHeight / 2;
+      
+      // Find the first heading above viewport center
+      let currentHeading: Element | null = null;
+      
+      for (let i = headings.length - 1; i >= 0; i--) {
+        const heading = headings[i] as HTMLElement;
+        const headingTop = heading.offsetTop;
+        
+        if (headingTop <= viewportCenter) {
+          currentHeading = heading;
+          break;
+        }
+      }
+      
+      // Remove all active classes
+      tocLinks.forEach(link => link.classList.remove("active"));
+      
+      // Add active class to current heading's link
+      if (currentHeading) {
+        const id = currentHeading.id;
+        const activeLink = document.querySelector(`#toc-list a[href="#${id}"]`);
+        if (activeLink) {
+          activeLink.classList.add("active");
+          // Scroll the active link into view
+          activeLink.scrollIntoView({ block: "center", behavior: "smooth" });
+        }
+      }
     }
 
     // Close panel when clicking outside (only on mobile)
@@ -236,5 +287,16 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
   document.addEventListener("DOMContentLoaded", initToc);
   
   // Re-initialize after view transitions (if enabled)
-  document.addEventListener("astro:page-load", initToc);
+  document.addEventListener("astro:page-load", () => {
+    initToc();
+    // Also highlight on page load if TOC is open on desktop
+    const tocPanel = document.getElementById("toc-panel");
+    if (tocPanel && window.innerWidth >= 1440 && !tocPanel.classList.contains("is-closed")) {
+      // Wait a bit for the page to settle
+      setTimeout(() => {
+        const highlightFunc = (window as any).highlightCurrentSection;
+        if (highlightFunc) highlightFunc();
+      }, 100);
+    }
+  });
 </script>
