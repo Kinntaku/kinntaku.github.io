@@ -112,24 +112,27 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     padding-left: 1rem;
   }
 
-  /* Desktop styles: show TOC panel and button */
+  /* Desktop styles: always show TOC */
   @media (min-width: 1440px) {
     #toc-container {
       display: block !important;
+      position: fixed;
+      left: 2rem;
+      top: 8rem; /* Adjust as needed */
+      bottom: auto;
+      width: 280px;
     }
     #toc-toggle-btn {
-      display: flex; /* Ensure button is visible */
+      display: none;
     }
     #toc-panel {
-      /* Keep the panel hidden until toggled */
-      display: none;
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1),
-        0 4px 6px -4px rgb(0 0 0 / 0.1);
-    }
-    #toc-panel.is-open {
       display: block;
+      position: static;
+      width: 100%;
+      max-height: calc(100vh - 10rem);
+      box-shadow: none;
+      border: none;
+      background: transparent;
     }
   }
 </style>
