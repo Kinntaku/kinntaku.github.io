@@ -157,6 +157,8 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
   // Scroll monitoring variables
   let scrollMonitoringActive = false;
   let scrollTimeout: number | null = null;
+  let isClickNavigation = false;
+  let clickNavigationTimeout: number | null = null;
   
   // Function to start monitoring scroll
   function startScrollMonitoring() {
@@ -179,6 +181,9 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
   // Throttled scroll handler
   function handleScrollForToc() {
     if (!scrollMonitoringActive) return;
+    
+    // Skip automatic update during click navigation
+    if (isClickNavigation) return;
     
     if (scrollTimeout) {
       clearTimeout(scrollTimeout);
@@ -279,6 +284,34 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
           e.stopPropagation();
         }
       }, { passive: false });
+
+      // Add click handlers to TOC links to handle navigation
+      const tocLinks = document.querySelectorAll("#toc-list a");
+      tocLinks.forEach(link => {
+        link.addEventListener("click", (e) => {
+          const href = (link as HTMLAnchorElement).getAttribute("href");
+          if (href && href.startsWith("#")) {
+            const targetId = href.slice(1);
+            
+            // Set click navigation flag
+            isClickNavigation = true;
+            
+            // Clear any existing timeout
+            if (clickNavigationTimeout) {
+              clearTimeout(clickNavigationTimeout);
+            }
+            
+            // Immediately highlight the clicked link
+            tocLinks.forEach(l => l.classList.remove("active"));
+            link.classList.add("active");
+            
+            // Reset the flag after scroll completes (with some buffer)
+            clickNavigationTimeout = window.setTimeout(() => {
+              isClickNavigation = false;
+            }, 1000) as unknown as number;
+          }
+        });
+      });
 
       // Remove existing listeners to avoid duplicates
       const newToggleBtn = toggleBtn.cloneNode(true) as HTMLElement;
