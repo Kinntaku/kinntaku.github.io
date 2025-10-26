@@ -18,7 +18,7 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
       height="24"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
+      stroke="white"
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
@@ -60,7 +60,6 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     height: 3rem;
     border-radius: 9999px;
     background-color: var(--accent);
-    color: var(--fg-color);
     border: none;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     transition: all 0.2s ease-in-out;
@@ -115,7 +114,7 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
   /* Desktop styles: always show TOC */
   @media (min-width: 1440px) {
     #toc-container {
-      display: block !important;
+      display: block;
       position: fixed;
       left: 2rem;
       top: 8rem; /* Adjust as needed */
@@ -133,7 +132,7 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
       box-shadow: none;
       border: 1px solid var(--accent);
       border-radius: 0.5rem;
-      background: var(--bg-color);
+      background-color: var(--bg-color);
       padding: 1rem;
     }
   }
@@ -143,8 +142,13 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
   document.addEventListener("DOMContentLoaded", () => {
     const tocContainer = document.getElementById("toc-container");
     const headings = document.querySelectorAll("main h2, main h3");
-    if (!tocContainer || headings.length === 0) {
-      if(tocContainer) tocContainer.style.display = 'none';
+    if (!tocContainer) return;
+
+    if (headings.length === 0) {
+      const isDesktop = window.matchMedia("(min-width: 1440px)").matches;
+      if(isDesktop) {
+        tocContainer.style.display = 'none';
+      }
       return;
     }
 
