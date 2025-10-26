@@ -70,6 +70,7 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     position: fixed;
     bottom: 2rem;
     left: 2rem;
+    z-index: 51;
   }
 
   #toc-toggle-btn:hover {
@@ -79,17 +80,18 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
   #toc-panel {
     display: none;
     position: fixed;
-    top: 2rem;
-    bottom: 7rem; /* Leave space for the button */
-    left: 2rem;
+    top: 0;
+    bottom: 0;
+    left: 0;
     width: 280px;
     overflow-y: auto;
     overflow-x: hidden;
     background-color: var(--background);
     border: none;
     border-right: 2px solid var(--accent);
-    padding: 2rem 1rem;
+    padding: 2rem 1rem 7rem 1rem; /* Bottom padding to avoid button overlap */
     box-shadow: none;
+    z-index: 49;
   }
   
   #toc-panel > div {
@@ -153,17 +155,42 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
 
     if (toggleBtn && tocPanel) {
       // Prevent scrolling the main page when scrolling inside TOC panel
-      tocPanel.addEventListener("wheel", (e) => {
-        const isScrollable = tocPanel.scrollHeight > tocPanel.clientHeight;
-        if (isScrollable) {
+      const handleWheel = (e: WheelEvent) => {
+        const atTop = tocPanel.scrollTop === 0;
+        const atBottom = tocPanel.scrollTop + tocPanel.clientHeight >= tocPanel.scrollHeight - 1;
+        
+        // Prevent page scroll if we're scrolling within bounds
+        if ((e.deltaY < 0 && !atTop) || (e.deltaY > 0 && !atBottom)) {
+          e.stopPropagation();
+        } else if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
+          // At boundaries, prevent default to stop page scroll
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      };
+      
+      tocPanel.addEventListener("wheel", handleWheel, { passive: false });
+      
+      // Prevent touch scrolling from affecting the main page
+      let startY = 0;
+      
+      tocPanel.addEventListener("touchstart", (e) => {
+        startY = e.touches[0].clientY;
+      }, { passive: true });
+      
+      tocPanel.addEventListener("touchmove", (e) => {
+        const currentY = e.touches[0].clientY;
+        const atTop = tocPanel.scrollTop === 0;
+        const atBottom = tocPanel.scrollTop + tocPanel.clientHeight >= tocPanel.scrollHeight - 1;
+        
+        // Prevent page scroll
+        if ((currentY > startY && !atTop) || (currentY < startY && !atBottom)) {
+          e.stopPropagation();
+        } else {
+          e.preventDefault();
           e.stopPropagation();
         }
       }, { passive: false });
-      
-      // Prevent touch scrolling from affecting the main page
-      tocPanel.addEventListener("touchmove", (e) => {
-        e.stopPropagation();
-      }, { passive: true });
 
       // Remove existing listeners to avoid duplicates
       const newToggleBtn = toggleBtn.cloneNode(true) as HTMLElement;
