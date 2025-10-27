@@ -1,20 +1,16 @@
 ---
 author: Kinntaku
-pubDatetime: 2022-09-23T04:58:53Z
-modDatetime: 2025-03-20T03:15:57.792Z
+pubDatetime: 2025-10-24T04:58:53Z
+modDatetime: 2025-10-24T03:15:57.792Z
 title: Fedora折腾记录
 slug: fedora-kde-install
 featured: true
 draft: false
 tags:
   - Fedora
-description: How to install Fedora and make it suitable for you in your daily life.
-
+description: Fedora踩坑记录
 ---
-
 # Fedora折腾记录
-
-[toc]
 
 ## 操作环境
 
@@ -40,7 +36,7 @@ Fedora42，KDE
    # 常用软件
    sudo dnf install chromium vlc obs cmake btrfs-assistant code
    # 选择性安装
-   sudo dnf install blender steam kdenline wine cmake-gui gimp librecad RcloneBrowser steam bleachbit rclone pandoc rclone-browser
+   sudo dnf install blender steam kdenline wine cmake-gui gimp librecad RcloneBrowser steam bleachbit rclone pandoc
    ```
 2. Flatpak
 
@@ -120,13 +116,16 @@ Fedora42，KDE
       chmod 777 SetupSTM32CubeMX-6.15.0 # 看情况填名称
       ./SetupSTM32CubeMX-6.15.0
       ```
-
    7. 解码器：
 
       ```bash
       sudo dnf install https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm
       sudo dnf install libavcodec-freeworld gstreamer1-vaapi gstreamer1-plugins-base gstreamer1-plugins-good gstreamer1-plugins-good-extras gstreamer1-plugins-ugly-free gstreamer1-plugins-bad-free gstreamer1-libav gstreamer1-plugins-bad-freeworld gstreamer1-plugins-ugly gstreamer1-plugin-openh264 pipewire-gstreamer svt-vp9-libs x265 x265-libs
       ```
+   8. 其他软件
+
+      1. Davinci Resolve：请使用 `DaVinci-Helper` 安装：https://github.com/H3rz3n/davinci-helper/releases
+      2. 百度网盘：Fedora上安装百度网盘难度极大，堪称依赖地狱，如仍需使用请使用 distrobox 安装 deb 版本百度网盘或使用 wine 或者使用 WayDroid 使用安卓版本的百度网盘
 
 ## 系统问题
 
@@ -138,18 +137,33 @@ Fedora42，KDE
    sudo ausearch -c 'snapperd' --raw | audit2allow -M snapperd_local
    sudo semodule -i snapperd_local.pp
    ```
-
 2. vlc打不开
 
    某些条件下，开始菜单中的 vlc 的命令行参数会加入必须指定文件的参数，打开菜单编辑器删掉即可
+3. AppImage 无法使用 KDE 的 `自动启动` 开机自启
 
-## vscode
+   添加脚本启动
 
-### 开始
+   ```bash
+   #!/bin/bash
+   /home/kinntaku/Software/Snipaste/Snipaste-2.10.8-x86_64.AppImage &
+   ```
+4. 爆内存
+
+   调整 zram ：修改 `sudo gedit /usr/lib/systemd/zram-generator.conf`，调整为 `10386` （16GB）
+5. 没字体
+
+   从 windows 下的 `C:/Windows/Windows/Fonts/` 中复制所有的字体到 fedora 中
+
+   在 `设置`-`文字和字体`-`字体管理`-`安装字体文件` 选择复制过来的字体，安装为系统字体
+
+### vscode
+
+#### 开始
 
 安装 `Chinese (Simplified) (简体中文) Language Pack`,重启 vscode
 
-### markdown 以及流程图绘制
+#### markdown 以及流程图绘制
 
 新建 vscode 配置文件
 
@@ -160,7 +174,7 @@ Fedora42，KDE
 | Office Viewer       | 内置 Veditor 编辑器 |
 | Draw.io Integration | 多功能绘图软件      |
 
-### python 开发
+#### python 开发
 
 新建 vscode 配置文件
 
@@ -187,7 +201,7 @@ Fedora42，KDE
 
    ```
 
-### arm 嵌入式开发
+#### arm 嵌入式开发
 
 安装编译器
 
@@ -239,7 +253,7 @@ sudo dnf install arm-none-eabi-binutils arm-none-eabi-gcc-cs arm-none-eabi-newli
 
 其中 `defines` 中的 `STM32F103xE` 来自 `Drivers/CMSIS/Device/ST/STM32F1xx/Source/Templates/arm/startup_stm32f103xe.s`
 
-### vscode 个性化
+#### vscode 个性化
 
 打开 vscode 设置 点击右上角的 `打开设置（JSON）` 按钮，添加以下内容
 
@@ -283,7 +297,9 @@ sudo dnf install arm-none-eabi-binutils arm-none-eabi-gcc-cs arm-none-eabi-newli
 },
 ```
 
-## Fcitx输入法
+## 其他软件
+
+### Fcitx输入法
 
 使用rime输入法以及配置万象拼音：
 
@@ -380,7 +396,7 @@ gtk-im-module = fcitx
 
 若使用自定义主题将文件夹放到 `~/.local/share/fcitx5/themes/`
 
-## distrobox
+### distrobox
 
 ```bash
 #要在容器中使用cuda，请安装如下软件
@@ -410,7 +426,7 @@ vscode中设置添加
    distrobox create --name ubuntu2204 --additional-flags "--device nvidia.com/gpu=all" --image docker.io/nvidia/cuda:11.8.0-cudnn8-devel-ubuntu20.04
 ```
 
-## rclone
+### rclone
 
 挂载 onedrive：https://lug.ustc.edu.cn/planet/2024/05/onedrive-backup-with-rclone/
 
@@ -437,7 +453,7 @@ nohup rclone mount "$REMOTE_NAME": "$MOUNT_POINT" \
   > /dev/null 2>&1 &
 ```
 
-## X-Anylabeling
+### X-Anylabeling
 
 ```bash
 # 创建 conda 环境
@@ -490,4 +506,29 @@ conda activate x-anylabeling
 
 # 填上正确的位置
 python3 ~/Document/git_projects/X-AnyLabeling/anylabeling/app.py --qt-platform xcb
+```
+
+### labelme
+
+```python
+conda create -n labelme python=3.13
+conda activate labelme
+pip install labelme
+```
+
+启动脚本
+
+```bash
+#!/bin/bash
+
+# 设置 Qt 平台为 xcb（适用于 X11）
+export QT_QPA_PLATFORM=xcb
+
+# 激活 Conda 环境
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate labelme
+
+# 启动 labelme
+labelme
+
 ```
