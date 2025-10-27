@@ -70,17 +70,7 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
 </div>
 
 <style>
-  #toc-container {
-    position: fixed;
-    bottom: 2rem;
-    left: 2rem;
-    z-index: 50;
-  }
-
   #toc-toggle-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
     position: fixed;
     bottom: 2rem;
     left: 2rem;
@@ -111,11 +101,9 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     overflow-y: auto;
     overflow-x: hidden;
     background-color: var(--background);
-    border: none;
     border-right: 2px solid var(--accent);
-    padding: 2rem 1rem 7rem 1rem; /* Bottom padding to avoid button overlap */
-    box-shadow: none;
-    z-index: 5; /* Below progress bar (z-index: 10) so progress bar floats on top */
+    padding: 2rem 1rem 7rem 1rem;
+    z-index: 5;
   }
   
   #toc-panel > div {
@@ -150,12 +138,12 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     transition: color 0.2s;
   }
 
-  .toc-item a:hover {
+  .toc-item a:hover,
+  .toc-item a.active {
     color: var(--accent);
   }
 
   .toc-item a.active {
-    color: var(--accent);
     font-weight: 600;
   }
 
@@ -386,7 +374,9 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
           stopScrollMonitoring();
         }
       }
-    };    document.removeEventListener("click", closeOutsideHandler);
+    };    
+    
+    document.removeEventListener("click", closeOutsideHandler);
     document.addEventListener("click", closeOutsideHandler);
   }
 
