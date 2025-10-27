@@ -87,7 +87,14 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     z-index: 51;
     cursor: pointer;
     transition: transform 0.2s ease-in-out;
-    border: 2px solid var(--accent);
+    border: none;
+  }
+  
+  /* Add border only on mobile (when button is circular) */
+  @media (max-width: 767px) {
+    #toc-toggle-btn {
+      border: 2px solid var(--accent);
+    }
   }
 
   #toc-toggle-btn:hover {
@@ -97,8 +104,8 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
   #toc-panel {
     display: none;
     position: fixed;
-    top: calc(2rem + 56px); /* Same spacing as bottom (2rem) + button size (56px) */
-    bottom: calc(2rem + 56px + 1rem); /* 2rem offset + button size + 1rem gap */
+    top: 0;
+    bottom: 0;
     left: 0;
     width: 280px;
     overflow-y: auto;
@@ -106,27 +113,9 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     background-color: var(--background);
     border: none;
     border-right: 2px solid var(--accent);
-    padding: 2rem 1rem;
+    padding: 2rem 1rem 7rem 1rem; /* Bottom padding to avoid button overlap */
     box-shadow: none;
-    z-index: 49;
-    -webkit-mask-image: linear-gradient(to right, black calc(100% - 2px), transparent calc(100% - 2px)),
-                        linear-gradient(to bottom, 
-                          transparent 0%, 
-                          black 5%, 
-                          black 20%,
-                          black 80%,
-                          black 95%, 
-                          transparent 100%);
-    -webkit-mask-composite: source-in;
-    mask-image: linear-gradient(to right, black calc(100% - 2px), transparent calc(100% - 2px)),
-                linear-gradient(to bottom, 
-                  transparent 0%, 
-                  black 5%, 
-                  black 20%,
-                  black 80%,
-                  black 95%, 
-                  transparent 100%);
-    mask-composite: intersect;
+    z-index: 9; /* Below progress bar (z-index: 10) so progress bar floats on top */
   }
   
   #toc-panel > div {
