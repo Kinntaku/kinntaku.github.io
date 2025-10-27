@@ -11,7 +11,12 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
 ---
 
 <div id="toc-container">
-  <button id="toc-toggle-btn">
+  <button id="toc-toggle-btn" class:list={[
+    "group relative bg-background px-2 py-1",
+    "size-14 rounded-full shadow-xl",
+    "md:h-8 md:w-fit md:rounded-md md:shadow-none md:focus-visible:rounded-none",
+    "md:bg-background/35 md:bg-clip-padding md:backdrop-blur-lg",
+  ]}>
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width="24"
@@ -22,13 +27,31 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
-      class="icon icon-tabler icons-tabler-outline icon-tabler-list-details"
+      class="inline-block md:hidden"
       ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
         d="M13 5h8"></path><path d="M13 9h5"></path><path d="M13 15h8"
       ></path><path d="M13 19h5"></path><path
         d="M3 5h4v4h-4z"></path><path d="M3 15h4v4h-4z"></path></svg
     >
-    <span class="sr-only">Toggle Table of Contents</span>
+    <span class="sr-only text-sm group-hover:text-accent md:not-sr-only">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="inline-block size-4"
+        ><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
+          d="M13 5h8"></path><path d="M13 9h5"></path><path d="M13 15h8"
+        ></path><path d="M13 19h5"></path><path
+          d="M3 5h4v4h-4z"></path><path d="M3 15h4v4h-4z"></path></svg
+      >
+      Table of Contents
+    </span>
   </button>
   <div id="toc-panel">
     <div>
@@ -58,23 +81,17 @@ const tocHeadings = headings.filter(({ depth }) => depth > 1 && depth < 4);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 9999px;
-    background-color: var(--accent);
-    color: white;
-    border: none;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    transition: transform 0.2s ease-in-out;
-    cursor: pointer;
     position: fixed;
     bottom: 2rem;
     left: 2rem;
     z-index: 51;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+    border: none;
   }
 
   #toc-toggle-btn:hover {
-    transform: scale(1.1);
+    transform: scale(1.05);
   }
 
   #toc-panel {
