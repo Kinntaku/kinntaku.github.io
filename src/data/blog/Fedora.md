@@ -129,33 +129,119 @@ Fedora42，KDE
 
 ## 系统问题
 
-1. 无法给子卷 `opt` 创建快照
+### 无法给子卷 `opt` 创建快照
 
-   为 Snapper 创建允许规则
+为 Snapper 创建允许规则
 
-   ```bash
-   sudo ausearch -c 'snapperd' --raw | audit2allow -M snapperd_local
-   sudo semodule -i snapperd_local.pp
-   ```
-2. vlc打不开
+```bash
+sudo ausearch -c 'snapperd' --raw | audit2allow -M snapperd_local
+sudo semodule -i snapperd_local.pp
+```
 
-   某些条件下，开始菜单中的 vlc 的命令行参数会加入必须指定文件的参数，打开菜单编辑器删掉即可
-3. AppImage 无法使用 KDE 的 `自动启动` 开机自启
+### 开始菜单中的 vlc 打不开
 
-   添加脚本启动
+某些条件下，开始菜单中的 vlc 的命令行参数会加入必须指定文件的参数，打开菜单编辑器删掉即可
 
-   ```bash
-   #!/bin/bash
-   /home/kinntaku/Software/Snipaste/Snipaste-2.10.8-x86_64.AppImage &
-   ```
-4. 爆内存
+### AppImage 无法使用 KDE 的 `自动启动` 开机自启
 
-   调整 zram ：修改 `sudo gedit /usr/lib/systemd/zram-generator.conf`，调整为 `10386` （16GB）
-5. 没字体
+添加脚本启动
 
-   从 windows 下的 `C:/Windows/Windows/Fonts/` 中复制所有的字体到 fedora 中
+```bash
+#!/bin/bash
+/home/kinntaku/Software/Snipaste/Snipaste-2.10.8-x86_64.AppImage &
+```
 
-   在 `设置`-`文字和字体`-`字体管理`-`安装字体文件` 选择复制过来的字体，安装为系统字体
+### 爆内存
+
+调整 zram ：修改 `sudo gedit /usr/lib/systemd/zram-generator.conf`，调整为 `10386` （16GB）
+
+### 没字体
+
+从 windows 下的 `C:/Windows/Windows/Fonts/` 中复制所有的字体到 fedora 中
+
+在 `设置`-`文字和字体`-`字体管理`-`安装字体文件` 选择复制过来的字体，安装为系统字体
+
+### 防止睡眠中被usb外设唤醒
+
+创建服务文件
+```bash
+sudo nano /etc/systemd/system/disable-xhc-wakeup.service
+```
+填写
+```bash
+[Unit]
+Description=Disable all XHC wakeup devices
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "grep XHC /proc/acpi/wakeup | awk '{print $1}' | while read dev; do echo $dev | tee /proc/acpi/wakeup; done"
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+```
+
+设置开机自启
+
+```bash
+sudo systemctl enable disable-xhc-wakeup.service
+```
+
+检查是否启用成功
+
+```bash
+#立即启用
+sudo systemctl start disable-xhc-wakeup.service
+
+#检查USB设备（XHC）是否变为disabled
+cat /proc/acpi/wakeup | grep XHC
+```
+
+### 关于 NumLock
+
+#### 开机自动启用小键盘：
+
+`设置` - `键盘` - `键盘` - `NumLock 在开机时的状态` - `打开`
+
+#### 永久启用小键盘：
+
+安装 `keyd`
+
+```bash
+# 启用 COPR 仓库
+sudo dnf copr enable alternateved/keyd
+
+# 安装 keyd
+sudo dnf install keyd
+```
+
+创建配置文件
+
+```bash
+sudo mkdir -p /etc/keyd
+sudo nano /etc/keyd/default.conf
+```
+
+填写下列内容
+
+```bash
+[ids]
+* = *
+
+[main]
+numlock = f24
+```
+
+启用服务
+
+```bash
+sudo systemctl enable keyd
+sudo systemctl start keyd
+```
+
+## 软件设置
+
 
 ### vscode
 
@@ -297,7 +383,7 @@ sudo dnf install arm-none-eabi-binutils arm-none-eabi-gcc-cs arm-none-eabi-newli
 },
 ```
 
-## 其他软件
+
 
 ### Fcitx输入法
 
