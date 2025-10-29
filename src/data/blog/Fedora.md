@@ -153,7 +153,7 @@ sudo semodule -i snapperd_local.pp
 
 ### 爆内存
 
-调整 zram ：修改 `sudo gedit /usr/lib/systemd/zram-generator.conf`，调整为 `10386` （16GB）
+调整 zram ：修改 `/usr/lib/systemd/zram-generator.conf`，调整为 `10386` （16GB）
 
 ### 没字体
 
@@ -164,10 +164,13 @@ sudo semodule -i snapperd_local.pp
 ### 防止睡眠中被usb外设唤醒
 
 创建服务文件
+
 ```bash
 sudo nano /etc/systemd/system/disable-xhc-wakeup.service
 ```
+
 填写
+
 ```bash
 [Unit]
 Description=Disable all XHC wakeup devices
@@ -206,6 +209,8 @@ cat /proc/acpi/wakeup | grep XHC
 
 #### 永久启用小键盘：
 
+方案：将小键盘区映射到数字区
+
 安装 `keyd`
 
 ```bash
@@ -230,7 +235,18 @@ sudo nano /etc/keyd/default.conf
 * = *
 
 [main]
-numlock = f24
+kp0 = 0
+kp1 = 1
+kp2 = 2
+kp3 = 3
+kp4 = 4
+kp5 = 5
+kp6 = 6
+kp7 = 7
+kp8 = 8
+kp9 = 9
+kpdot = .
+kpenter = enter
 ```
 
 启用服务
@@ -241,7 +257,6 @@ sudo systemctl start keyd
 ```
 
 ## 软件设置
-
 
 ### vscode
 
@@ -383,8 +398,6 @@ sudo dnf install arm-none-eabi-binutils arm-none-eabi-gcc-cs arm-none-eabi-newli
 },
 ```
 
-
-
 ### Fcitx输入法
 
 使用rime输入法以及配置万象拼音：
@@ -477,6 +490,7 @@ gtk-im-module = fcitx
 | Super+Space | 切换输入法                                        |
 | Super+;     | 快速输入，可以输入表情，latex（例如 `\alpha` ） |
 | Ctrl+;      | fcitx的剪贴板                                     |
+| RightShift  | 切换rime的英文输入法                              |
 
 右键菜单栏的 Fcitx 5 图标，选择 `配置` - `附加组件` - `经典用户界面` - `主题`　选择 `默认深色`
 
@@ -618,3 +632,35 @@ conda activate labelme
 labelme
 
 ```
+
+### PDFMathTranslate-next
+
+```bash
+conda create -n pdf2zh-next python=3.12
+conda activate pdf2zh-next
+pip install pdf2zh-next -i https://pypi.mirrors.ustc.edu.cn/simple/
+```
+
+启动脚本
+
+```bash
+#!/bin/bash
+
+# 激活 Conda 环境
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate pdf2zh-next
+
+pdf2zh_next --gui
+```
+
+在 `菜单编辑器` 中添加此脚本并在 `高级` 中勾选 `在终端运行`
+
+### chrome
+
+| 浏览器扩展    | 脚本扩展         |
+| ------------- | ---------------- |
+| Bitwarden     | bilibili视频下载 |
+| FireShot      | CSDN Focus       |
+| Imagus Reborn |                  |
+| 篡改猴        |                  |
+| 小舒同学      |                  |
