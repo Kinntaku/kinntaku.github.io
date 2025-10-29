@@ -34,9 +34,9 @@ Fedora42，KDE
 
    ```bash
    # 常用软件
-   sudo dnf install chromium vlc obs cmake btrfs-assistant code
+   sudo dnf install vlc obs cmake btrfs-assistant code
    # 选择性安装
-   sudo dnf install blender steam kdenline wine cmake-gui gimp librecad RcloneBrowser steam bleachbit rclone pandoc
+   sudo dnf install blender steam kdenline wine cmake-gui gimp steam bleachbit rclone pandoc
    ```
 2. Flatpak
 
@@ -71,6 +71,7 @@ Fedora42，KDE
       | WPSOffice     | https://www.wps.cn/product/wpslinux#                        |                                                                                                      |
       | balena-etcher | https://github.com/balena-io/etcher/releases/               | 选择性安装                                                                                           |
       | Pureref       | https://www.pureref.com/download.php                        | 选择性安装，捐赠界面选择 `Costume Amount` 填写 0 即可下载                                          |
+      | Chrome        | https://www.google.com/intl/zh-CN/chrome/                   | 拉到最下面，在 `Chrome系列` 中选择 `其他平台` - `Linux` - `64 位 .rpm`                       |
 
       安装方法
 
@@ -664,3 +665,16 @@ pdf2zh_next --gui
 | Imagus Reborn |                  |
 | 篡改猴        |                  |
 | 小舒同学      |                  |
+
+启用硬件解码：加入启动参数，这里核显用来解码，使用AMD
+
+```bash
+# Intel
+google-chrome --enable-features=AcceleratedVideoDecodeLinuxZeroCopyGL,AcceleratedVideoDecodeLinuxGL,AcceleratedVideoEncoder
+
+# AMD
+google-chrome --enable-features=AcceleratedVideoDecodeLinuxZeroCopyGL,AcceleratedVideoDecodeLinuxGL,VaapiIgnoreDriverChecks
+
+# Nvidia
+google-chrome --enable-features=AcceleratedVideoDecodeLinuxZeroCopyGL,AcceleratedVideoDecodeLinuxGL,VaapiIgnoreDriverChecks,VaapiOnNvidiaGPUs
+```
